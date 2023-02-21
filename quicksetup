@@ -71,7 +71,7 @@ esac
 
 # Make sure the ddev directory exists
 if [ ! -d ".ddev" ]; then
-    echo "Please edit the configuration .ddev/commands/host/quicksetup and run ddev quicksetup reconfigure"
+    echo "Please edit the configuration in quicksetup and then run bash quicksetup reconfigure"
     exit 0
 fi
 
