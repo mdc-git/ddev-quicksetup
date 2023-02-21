@@ -62,8 +62,9 @@ case "$1" in
     fi
     ;;
   *)
+    # Show usage
     if [ ! -z "$1" ]; then
-      echo "Invalid option. Usage: $0 reconfigure"
+      echo "Invalid option. Usage: $0 [reconfigure]"
       exit 0
     fi
     ;;
@@ -75,21 +76,29 @@ if [ ! -d ".ddev" ]; then
     exit 0
 fi
 
+# Update the network
 ddev get mdc-git/ddev-network
+
+# Disable xdebug log spam
 mkdir -p .ddev/php
 echo "xdebug.log=/dev/null" > .ddev/php/99-custom.ini
 
 # Restart the project
 ddev restart
+
+# Set the default url
 MYNAME="${PROJECT}.ddev.site"
 if [[ ! -z "$FQDN" ]]; then
     MYNAME=${FQDN}
 fi
+
+# Check if the project is a SvelteKit project
 if [ -e "vite.config.ts" ]; then
     ddev exec NODE_OPTIONS=--inspect=0.0.0.0:9229 ./node_modules/.bin/vite dev &
-    #ddev yarn dev &
+# Check if the project is a simple Node/NextJS project
 elif [ -e "package.json" ]; then
     ddev yarn dev &
+# Otherwise, we assume it's a PHP project
 else
     # Enable xdebug
     ddev xdebug on
@@ -105,11 +114,16 @@ fi
 
 
 sleep 5
-echo
-echo "      https://${MYNAME}      "
-echo
 
-echo "Press Control + C to exit"
+# Display the project URL
+cat << EOF
+      
+      https://${MYNAME}
+    
+Press Control + C to exit
+EOF
+
+# Check for process termination
 trap 'echo "Control C was pressed, exiting..."; ddev stop; exit' INT EXIT
 while :
 do
